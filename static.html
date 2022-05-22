@@ -1,0 +1,250 @@
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.5.1/gsap.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.js"
+        integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
+
+    <style>
+        html,
+        body {
+            width: 1920px;
+            height: 1080px;
+            padding: 0px;
+            margin: 0px;
+        }
+
+        .stage {
+            position: relative;
+            width: 1920px;
+            height: 1080px;
+            overflow: hidden;
+        }
+
+        .animate {
+            opacity: 0;
+        }
+    </style>
+
+    <title>Vedia Background Slideshow</title>
+</head>
+
+<body>
+
+    <div class="stage">
+
+    </div>
+
+    <script>
+        (function () {
+            document.addEventListener('DOMContentLoaded', function (event) {
+                setTimeout(() => {
+
+                    const info = JSON.parse(new URLSearchParams(window.location.search).get('info'));
+                    const images = info.images;
+                    const canvas = info.canvas;
+                    const position = info.position;
+                    const animation = info.animation;
+                    const imageScale = info.imageScale / 100;
+                    const factor = info.factor || 1;
+
+                    $('.stage').width(canvas.width);
+                    $('.stage').height(canvas.height);
+
+                    for (let j = 0; j < factor; j++){
+
+                        for (let i = 0; i < images.length; i++) {
+                            const imageData = images[i];
+
+                            let scale = canvas.height / imageData.height;
+                            let width = imageData.width * scale * imageScale;
+                            let height = imageData.height * scale * imageScale;
+
+                            const suffix = Date.now();
+
+                            $('.stage').append(`<div class="${'main-' + suffix} animate">
+                                                    <div class="${'background-' + suffix}"></div>
+                                                    <div class="${'image-container-' + suffix}"></div>
+                                                </div>`)
+
+                            $(`.main-${suffix}`).width(canvas.width);
+                            $(`.main-${suffix}`).height(canvas.height);
+                            $(`.main-${suffix}`).css({
+                                'position': 'absolute',
+                                'top': '0px',
+                                'leftt': '0px',
+                            });
+
+                            $(`.background-${suffix}`).css({
+                                'position': 'absolute',
+                                'top': '0px',
+                                'leftt': '0px',
+                                'background-image': `url(${imageData.src})`,
+                                'background-repeat': 'no-repeat',
+                                'background-size': 'cover',
+                                'background-position': 'center',
+                                'filter': 'blur(8px)',
+                                'width': canvas.width + 'px',
+                                'height': canvas.height + 'px',
+                            });
+
+                            $(`.image-container-${suffix}`).css({
+                                'position': 'absolute',
+                                'background-image': `url(${imageData.src})`,
+                                'background-repeat': 'no-repeat',
+                                'background-size': 'cover',
+                                'width': width + 'px',
+                                'height': height + 'px',
+                            });
+
+
+                            switch (info.position) {
+                                case 1:
+                                    $(`.image-container-${suffix}`).css({
+                                        'top': '0px',
+                                        'left': '0px',
+                                    })
+                                    break;
+
+                                case 2:
+                                    $(`.image-container-${suffix}`).css({
+                                        'top': '0px',
+                                        'left': ((canvas.width - width) * 0.5) + 'px'
+                                    })
+                                    break;
+
+                                case 3:
+                                    $(`.image-container-${suffix}`).css({
+                                        'top': '0px',
+                                        'left': (canvas.width - width) + 'px'
+                                    })
+                                    break;
+
+                                case 4:
+                                    $(`.image-container-${suffix}`).css({
+                                        'top': ((canvas.height - height) * 0.5) + 'px',
+                                        'left': '0px'
+                                    })
+                                    break;
+
+                                case 5:
+                                    $(`.image-container-${suffix}`).css({
+                                        'top': ((canvas.height - height) * 0.5) + 'px',
+                                        'left': ((canvas.width - width) * 0.5) + 'px'
+                                    })
+                                    break;
+
+                                case 6:
+                                    $(`.image-container-${suffix}`).css({
+                                        'top': ((canvas.height - height) * 0.5) + 'px',
+                                        'left': (canvas.width - width) + 'px'
+                                    })
+                                    break;
+
+                                case 7:
+                                    $(`.image-container-${suffix}`).css({
+                                        'top': (canvas.height - height) + 'px',
+                                        'left': '0px'
+                                    })
+                                    break;
+
+                                case 8:
+                                    $(`.image-container-${suffix}`).css({
+                                        'top': (canvas.height - height) + 'px',
+                                        'left': ((canvas.width - width) * 0.5) + 'px'
+                                    })
+                                    break;
+
+                                case 9:
+                                    $(`.image-container-${suffix}`).css({
+                                        'top': (canvas.height - height) + 'px',
+                                        'left': (canvas.width - width) + 'px'
+                                    })
+                                    break;
+                            }
+                        }
+
+                    }
+
+                    var animate = $.makeArray($('.animate'));
+                    animate.reverse();
+
+                    function zoom() {
+                        TweenMax.to(animate[0], animation.crossfade, { autoAlpha: 0, scale: 1, transformOrigin: '50% 50%' })
+                        TweenMax.to(animate[1], animation.onscreen, { autoAlpha: 1, scale: 1.3, transformOrigin: '50% 50%' })
+                        animate.push(animate.shift())
+                    }
+
+                    function panRight() {
+                        TweenMax.to(animate[0], 0, { scale: 1.3, transformOrigin: '50% 50%' });
+                        TweenMax.to(animate[1], 0, { scale: 1.3, transformOrigin: '50% 50%' });
+
+                        TweenMax.to(animate[0], animation.crossfade, { autoAlpha: 0 })
+                        TweenMax.fromTo(animate[1], animation.crossfade, { autoAlpha: 0 }, { autoAlpha: 1 })
+                        TweenMax.fromTo(animate[1], animation.onscreen, { x: -info.canvas.width * 0.2, transformOrigin: '50% 50%' }, { x: 0, transformOrigin: '50% 50%' })
+                        animate.push(animate.shift())
+                    }
+
+                    function panLeft() {
+                        TweenMax.to(animate[0], 0, { scale: 1.3, transformOrigin: '50% 50%' });
+                        TweenMax.to(animate[1], 0, { scale: 1.3, transformOrigin: '50% 50%' });
+
+                        TweenMax.to(animate[0], animation.crossfade, { autoAlpha: 0 })
+                        TweenMax.fromTo(animate[1], animation.crossfade, { autoAlpha: 0 }, { autoAlpha: 1 })
+                        TweenMax.fromTo(animate[1], animation.onscreen, { x: info.canvas.width * 0.2, transformOrigin: '50% 50%' }, { x: 0, transformOrigin: '50% 50%' })
+                        animate.push(animate.shift())
+                    }
+
+                    if (animation.type.indexOf(',') === -1) {
+                        switch (animation.type) {
+                            case 'zoom':
+                                var cycle = setInterval(zoom, animation.onscreen * 1000);
+                                zoom();
+                                break;
+
+                            case 'panRight':
+                                var cycle = setInterval(panRight, animation.onscreen * 1000);
+                                panRight();
+                                break;
+
+                            case 'panLeft':
+                                var cycle = setInterval(panLeft, animation.onscreen * 1000);
+                                panLeft();
+                                break;
+                        }
+                    } else {
+                        const animaitons = animation.type.split(',').map(a => a.trim()).map(b => {
+                            if (b === 'zoom') {
+                                return zoom;
+                            } else if (b === 'panLeft') {
+                                return panLeft;
+                            } else if (b === 'panRight') {
+                                return panRight;
+                            }
+                        });
+
+                        TweenMax.to(animate[0], 0, { scale: 1, autoAlpha: 1, transformOrigin: '50% 50%' });
+                        TweenMax.to(animate[0], animation.onscreen, { scale: 1.3, transformOrigin: '50% 50%' })
+
+                        setInterval(() => {
+                            animaitons[0].call();
+                            animaitons.push(animaitons.shift());
+                        }, animation.onscreen * 1000);
+                    }
+
+
+                }, 1);
+            });
+        })();
+    </script>
+</body>
+
+</html>
